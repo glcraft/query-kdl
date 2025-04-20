@@ -14,6 +14,7 @@ pub enum TokenType<'a> {
     LeaveCurlyBracket,
     Equal,
     Pipe,
+    Hash,
     Unknown(&'a str),
 }
 
@@ -34,6 +35,7 @@ impl<'a> std::fmt::Display for TokenType<'a> {
             TokenType::LeaveCurlyBracket => write!(f, "}}"),
             TokenType::Equal => write!(f, "="),
             TokenType::Pipe => write!(f, "|"),
+            TokenType::Hash => write!(f, "#"),
             TokenType::Unknown(v) => write!(f, "<unknown: {}>", v),
         }
     }
@@ -146,6 +148,7 @@ impl<'a> Lexer<'a> {
             },
             '=' => Equal,
             '|' => Pipe,
+            '#' => Hash,
             c => Unknown(&self.input[0..c.len_utf8()]),
         };
         self.input = &self.input[offset..];
