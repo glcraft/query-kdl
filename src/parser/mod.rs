@@ -168,6 +168,7 @@ impl<'a> Path<'a> {
         let mut lexer = Lexer::from(input).peekable();
         let mut nodes = Vec::new();
         let mut node_builder = NodeBuilder::new();
+        let mut is_keyword = false;
         loop {
             let Some(token) = lexer.next() else {
                 break;
@@ -180,6 +181,7 @@ impl<'a> Path<'a> {
                 TokenType::String(s) => node_builder.set_node(NodeKind::Named(
                     string::parse_string(s).map_err(|e| e.into_parse_error(s))?,
                 ))?,
+                TokenType::Alphanumeric(s) if is_keyword => string::parse_keyword(s)?,
                 TokenType::Alphanumeric(s) => {
                     let value = string::parse_alphanumeric(s).map_err(|e| e.into_parse_error(s))?;
                     let Value::String(name) = value else {

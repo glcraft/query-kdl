@@ -68,6 +68,8 @@ pub enum ParseError<'a> {
     RangeEmpty,
     #[error("The range separator (between numbers) is missing")]
     RangeMissingSeparator,
+    #[error("unknown keyword: #{0}")]
+    UnknownKeyword(&'a str),
 }
 
 pub type Result<'a, T> = std::result::Result<T, ParseError<'a>>;

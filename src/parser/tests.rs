@@ -153,6 +153,23 @@ fn entries() {
         ]))
     );
     assert_eq!(
+        Entries::parse_lexer(&mut Lexer::from(r#"#true #false #null"#)),
+        Ok(Entries::from(vec![
+            EntryKind::Argument {
+                position: 0,
+                value: Some(Value::Boolean(true))
+            },
+            EntryKind::Argument {
+                position: 1,
+                value: Some(Value::Boolean(false))
+            },
+            EntryKind::Argument {
+                position: 2,
+                value: Some(Value::Null)
+            },
+        ]))
+    );
+    assert_eq!(
         Entries::parse_lexer(&mut Lexer::from(r#"1="#)),
         Err(ParseError::MissingEntryValue)
     );
@@ -181,6 +198,18 @@ fn entries() {
     assert_eq!(
         Entries::parse_lexer(&mut Lexer::from(r#"name=abc [ ]"#)),
         Err(ParseError::UnexpectedToken(TokenType::EnterSquareBracket))
+    );
+    assert_eq!(
+        Entries::parse_lexer(&mut Lexer::from(r#"#bla"#)),
+        Err(ParseError::UnknownKeyword("bla"))
+    );
+    assert_eq!(
+        Entries::parse_lexer(&mut Lexer::from(r#"#true=2"#)),
+        Err(ParseError::UnexpectedEntryIdentifier(Value::Boolean(true)))
+    );
+    assert_eq!(
+        Entries::parse_lexer(&mut Lexer::from(r#"#null=2"#)),
+        Err(ParseError::UnexpectedEntryIdentifier(Value::Null))
     );
 }
 

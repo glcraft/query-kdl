@@ -156,3 +156,11 @@ pub fn parse_alphanumeric<'a>(input: &'a str) -> Result<Value<'a>> {
     };
     Ok(result)
 }
+pub fn parse_keyword<'a>(input: &'a str) -> super::Result<'a, Value<'a>> {
+    match input {
+        "true" => Ok(Value::Boolean(true)),
+        "false" => Ok(Value::Boolean(false)),
+        "null" => Ok(Value::Null),
+        _ => Err(super::ParseError::UnknownKeyword(input)),
+    }
+}

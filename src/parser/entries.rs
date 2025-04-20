@@ -59,9 +59,22 @@ impl<'a> Entries<'a> {
         let mut arg_pos = 0;
         let mut prop_name = None;
         let mut is_unnamed_arg = false;
+        let mut is_keyword = false;
         while let Some(token) = lexer.next() {
             let value = match token {
                 TokenType::LeaveSquareBracket => break,
+                TokenType::Hash => {
+                    if is_keyword {
+                        return Err(ParseError::UnexpectedToken(token));
+                    }
+                    is_keyword = true;
+                    continue;
+                }
+                TokenType::Alphanumeric(s) if is_keyword => {
+                    is_keyword = false;
+                    is_unnamed_arg = true;
+                    Some(string::parse_keyword(s)?)
+                }
                 TokenType::Alphanumeric(s) => {
                     is_unnamed_arg = true;
                     let v = string::parse_alphanumeric(s).map_err(|e| e.into_parse_error(s))?;
