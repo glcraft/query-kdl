@@ -22,7 +22,8 @@ Each node is separated with `/` slash character, like `node1/node2/node3`
 
 It's possible to select a range of the current node selection by using curly brackets `{}` with a Rust-based range selection in between,
 or an index to get only one node.
-Ranges and indexes are zero based, which means that the first element is `0`. Ranges and indexes must be attached to any node type.
+Ranges and indexes are zero based, which means that the first element is `0`, and ranges end are inclusive.
+Ranges and indexes must be attached to any node type.
 
 Here is the table of range format:
 
@@ -30,7 +31,7 @@ Here is the table of range format:
 |:--:|:---|
 | `1` | selects the second element |
 | `1..` | selects from the second element to the end |
-| `..1` | selects fro the beggining to the second element included (So it selects the first 2 element) |
+| `..1` | selects fro the beginning to the second element included (So it selects the first 2 element) |
 | `1..3` | selects from the second element to the forth element |
 | `..` | selects from the beginning to the end. It's meaningless as this is the default behavior. *But it exists* |
 
@@ -67,11 +68,15 @@ Entry values are typed like KDL is:
 
 ## Interpreter result
 
-The output of the interpreter is KDL compatible. It must return the nodes selected like a 
+The output of the interpreter is KDL compatible. It returns the nodes selected in a list at the root of a new document. 
 
 ## Examples
 
 - Get the first node of the KDL document
   `*{0}`
 
-- 
+- Get all nodes named "pane" in the document, no matter where they are
+  `**/pane`
+
+- Filter the "test" nodes with a property "name" that is "debug", and take the first 2
+  `test[name=debug]{0..1}`
