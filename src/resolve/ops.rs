@@ -1,5 +1,5 @@
-use crate::parser::{Entries, EntryKind, Node, NodeKind, Path, Value};
-use kdl::{KdlDocument, KdlEntry, KdlNode, KdlValue};
+use crate::parser::{Entries, EntryKind, Value};
+use kdl::{KdlEntry, KdlValue};
 impl<'a> PartialEq<Entries<'a>> for [KdlEntry] {
     fn eq(&self, other: &Entries<'a>) -> bool {
         let entries = other.entries();
