@@ -72,11 +72,130 @@ The output of the interpreter is KDL compatible. It returns the nodes selected i
 
 ## Examples
 
-- Get the first node of the KDL document
-  `*{0}`
+To demonstrate the queries, let's take this KDL sample as the input document:
+
+```kdl
+layout {
+  pane size=1 borderless=true {
+    plugin location="zellij:tab-bar"
+  }
+  pane split_direction="vertical" {
+    pane {
+      name "helix"
+      command "helix"
+      args "."
+      focus true
+      size "66%"
+    }
+    pane split_direction="horizontal" {
+      pane stacked=true {
+        pane {
+          command "yazi"
+          env_vars {
+            YAZI_CONFIG_HOME "~/.config/yazi/zellij-ide"
+          }
+        }
+        pane command="lazygit" expanded=true
+      }
+      pane
+    }
+  }
+  pane size=2 borderless=true {
+    plugin location="zellij:status-bar"
+  }
+}
+plugins {
+  zjpane location="https://github.com/FuriouZz/zjpane/releases/download/v0.2.0/zjpane.wasm"
+}
+load_plugins {
+  zjpane
+}
+```
+*(This is one of my zellij custom layout)*
+
+### Get the second node of the KDL document
+
+**Query**: `*{1}`
+
+**Result**:
+
+```kdl
+plugins {
+  zjpane location="https://github.com/FuriouZz/zjpane/releases/download/v0.2.0/zjpane.wasm"
+}
+```
 
 - Get all nodes named "pane" in the document, no matter where they are
   `**/pane`
+
+```kdl
+
+pane size=1 borderless=true {
+  plugin location="zellij:tab-bar"
+}
+pane split_direction="vertical" {
+  pane {
+    name "helix"
+    command "helix"
+    args "."
+    focus true
+    size "66%"
+  }
+  pane split_direction="horizontal" {
+    pane stacked=true {
+      pane {
+        command "yazi"
+        env_vars {
+          YAZI_CONFIG_HOME "~/.config/yazi/zellij-ide"
+        }
+      }
+      pane command="lazygit" expanded=true
+    }
+    pane
+  }
+}
+
+pane {
+  name "helix"
+  command "helix"
+  args "."
+  focus true
+  size "66%"
+}
+pane split_direction="horizontal" {
+  pane stacked=true {
+    pane {
+      command "yazi"
+      env_vars {
+        YAZI_CONFIG_HOME "~/.config/yazi/zellij-ide"
+      }
+    }
+    pane command="lazygit" expanded=true
+  }
+  pane
+}
+
+pane stacked=true {
+  pane {
+    command "yazi"
+    env_vars {
+      YAZI_CONFIG_HOME "~/.config/yazi/zellij-ide"
+    }
+  }
+  pane command="lazygit" expanded=true
+}
+
+pane {
+  command "yazi"
+  env_vars {
+    YAZI_CONFIG_HOME "~/.config/yazi/zellij-ide"
+  }
+}
+pane command="lazygit" expanded=true
+pane size=2 borderless=true {
+  plugin location="zellij:status-bar"
+}
+```
 
 - Filter the "test" nodes with a property "name" that is "debug", and take the first 2
   `test[name=debug]{0..1}`
