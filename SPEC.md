@@ -1,4 +1,4 @@
-# Query KDL - Specifications
+# Query KDL - Specifications 1.0
 
 This document describe how to query [KDL](https://kdl.dev) format using this crate. 
 
@@ -8,21 +8,23 @@ This specification is inspired from glob path, [XPath](https://www.w3.org/TR/199
 
 ## Node selection
 
-Each node is separated with `/` character, like `node1/node2/node3`
+Each node is separated with `/` slash character, like `node1/node2/node3`
 
 
 | **node type** | **description** |
 |:--:|:---|
-| `<name>` | Selects named nodes from the current node |
-| `**` | Selects every node under the current node. |
-| `*` | Selects each node of the current node. |
+| `<name>` | Selects named nodes under the current node |
+| `**` | Selects every node under the current node and its descendants. |
+| `*` | Selects every node of the current node. |
 | `..` | Selects parent's node (from the current node) |
 
 ## Ranges
 
-It's possible to select a range of node by using curly brackets `{}` with a Rust-based range selection in between, or an index to get only one node.
-Ranges and indexes are zero based indexed, which means that the first element is 0. Ranges and indexes must be attached to a node type.
-Here is the table of range possible
+It's possible to select a range of the current node selection by using curly brackets `{}` with a Rust-based range selection in between,
+or an index to get only one node.
+Ranges and indexes are zero based, which means that the first element is `0`. Ranges and indexes must be attached to any node type.
+
+Here is the table of range format:
 
 | **range/index** | **description** |
 |:--:|:---|
@@ -30,11 +32,16 @@ Here is the table of range possible
 | `1..` | selects from the second element to the end |
 | `..1` | selects fro the beggining to the second element included (So it selects the first 2 element) |
 | `1..3` | selects from the second element to the forth element |
-| `..` | selects from the beginning to the end. It's meanless as this is the default behavior. *But it exists* |
+| `..` | selects from the beginning to the end. It's meaningless as this is the default behavior. *But it exists* |
+
+So, when querying `my-node{2}`, the expected result is the third `my-node` node of the current node.
 
 ## Entries
 
 A node can be filtered by its entries using squared brackets `[]` and entries values inside.
+
+Each entries is separated by one or more spaces, for example `[1 2 3]`.
+
 There are 3 methods to specify any entry :
 
 | **method** | **description** | **example** |
@@ -43,21 +50,28 @@ There are 3 methods to specify any entry :
 | `index=value` | Indexed argument specifier | `1="text"` (means second argument has to be `text`) |
 | `name=value` | Property specifier | `entry_name="text"` or `"entry_name"="text"` |
 
-Entry values can be skipped with `_`. for example, `[_ 2 _]` means that 3 arguments is expected, and the second argument is `2`.
-Entry values are type based like KDL :
+Like ranges, argument index are zero based, as you can see above in the example.
+Any entry can be skipped with `_`. for example, `[_ 2 _]` means that 3 arguments is expected, and the second argument is `2`.
+
+Entry values are typed like KDL is:
 
 | **value** | **type** |
 |:--:|:---|
 | `34` | integer number |
 | `3.14` | floating point value |
-| `"text"` | text |
+| `"text"` or `text`\* | text |
 | `true` | Boolean |
 | `null` | Null value |
 
-A text can be represented without double quotes if it doesn't "look like" another type and without white spaces.
+\* When the expected value is a text but it *looks like* another value type (like integer for example), the double quoted text will always be interpreted like a text.
 
-Each entries is separated by spaces.
+## Interpreter result
+
+The output of the interpreter is KDL compatible. It must return the nodes selected like a 
 
 ## Examples
 
-Selects all nodes in the document that has the second
+- Get the first node of the KDL document
+  `*{0}`
+
+- 
