@@ -6,13 +6,13 @@ use crate::parser::{Node as QueryNode, NodeKind, Path, RangedIterator};
 use iter::AnywhereIterator;
 use kdl::{KdlDocument, KdlEntry, KdlNode};
 
-struct Resolver<'k> {
+pub(crate) struct Resolver<'k> {
     current_nodes: Vec<&'k KdlNode>,
     found_nodes: Vec<&'k KdlNode>,
 }
 
 impl<'k> Resolver<'k> {
-    fn resolve<'q>(kdl_doc: &'k KdlDocument, query: Path<'q>) -> Vec<&'k KdlNode> {
+    pub(crate) fn resolve<'q>(kdl_doc: &'k KdlDocument, query: Path<'q>) -> Vec<&'k KdlNode> {
         let mut r = Resolver {
             current_nodes: Vec::with_capacity(query.nodes().len()),
             found_nodes: Vec::new(),

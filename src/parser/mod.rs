@@ -253,4 +253,8 @@ impl<'a> Path<'a> {
     pub fn nodes(&self) -> &[Node] {
         &self.nodes
     }
+    #[cfg(feature = "resolve")]
+    pub fn resolve(self, kdoc: &kdl::KdlDocument) -> Vec<&kdl::KdlNode> {
+        crate::resolve::Resolver::resolve(kdoc, self)
+    }
 }
