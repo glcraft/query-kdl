@@ -56,7 +56,7 @@ impl<'k> Resolver<'k> {
                     .filter(node_compare_entries)
                     .ranged(query_node.range.as_ref()),
             ),
-            NodeKind::Anywhere => self.dispatch(query_next, it_nodes.anywhere_nodes()),
+            NodeKind::Anywhere => self.dispatch_itself(query_next, it_nodes.anywhere_nodes()),
             NodeKind::Parent => {
                 let Some(parent) = self.current_nodes.pop() else {
                     return;
@@ -90,5 +90,17 @@ impl<'k> Resolver<'k> {
             self.resolve_query_node(query, kdl_doc.nodes().iter());
             let _ = self.current_nodes.pop();
         }
+    }
+    fn dispatch_itself<'q>(
+        &mut self,
+        query: &'q [QueryNode],
+        it_nodes: impl Iterator<Item = &'k KdlNode>,
+    ) {
+        if query.is_empty() {
+            it_nodes.for_each(|kdl_node| self.found_nodes.push(&kdl_node));
+            return;
+        }
+        let boxed_iter: Box<dyn Iterator<Item = &KdlNode>> = Box::new(it_nodes);
+        self.resolve_query_node(query, boxed_iter);
     }
 }
