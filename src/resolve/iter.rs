@@ -1,6 +1,7 @@
 use kdl::KdlNode;
+use std::slice::Iter as SliceIter;
 
-type BoxIter<'a> = Box<dyn Iterator<Item = &'a KdlNode> + 'a>;
+type BoxIter<'a> = Box<AnywhereIter<'a, SliceIter<'a, KdlNode>>>;
 
 pub struct AnywhereIter<'a, I>
 where
@@ -17,6 +18,19 @@ where
     pub fn new(it: I) -> Self {
         Self { it, current: None }
     }
+
+    fn next_from_origin(&mut self) -> Option<<Self as Iterator>::Item> {
+        let (knode, new_iter) = {
+            let knode = self.it.next()?;
+            let it = knode
+                .children()
+                .map(|kdoc| kdoc.nodes().iter())
+                .map(|it| Box::new(AnywhereIter::new(it)));
+            (knode, it)
+        };
+        self.current = new_iter;
+        Some(knode)
+    }
 }
 
 impl<'a, I> Iterator for AnywhereIter<'a, I>
@@ -26,32 +40,10 @@ where
     type Item = &'a KdlNode;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let Some(current) = self.current.as_mut() else {
-            let (knode, it) = loop {
-                let Some(knode) = self.it.next() else {
-                    return None;
-                };
-                let it = knode
-                    .children()
-                    .map(|kdoc| kdoc.nodes().iter())
-                    .map(|it| AnywhereIter::new(it));
-                // let Some(kdoc) = knode.children() else {
-                //     continue;
-                // };
-                break (knode, it);
-            };
-            self.current = match it {
-                Some(it) => Some(Box::new(it)),
-                None => None,
-            };
-            //it.map(|it| Box::new(it));
-            return Some(knode);
-        };
-        let Some(next_node) = current.next() else {
-            self.current = None;
-            return self.next();
-        };
-        Some(next_node)
+        match self.current.as_mut().and_then(|current| current.next()) {
+            None => self.next_from_origin(),
+            some_node => some_node,
+        }
     }
 }
 
@@ -59,6 +51,7 @@ pub trait AnywhereIterator<'a>
 where
     Self: Iterator<Item = &'a KdlNode> + Sized,
 {
+    #[inline]
     fn anywhere_nodes(self) -> impl Iterator<Item = &'a KdlNode> {
         AnywhereIter::new(self)
     }
